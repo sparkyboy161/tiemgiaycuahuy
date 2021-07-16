@@ -4,11 +4,11 @@ import { Table, Input, Button, Space } from "antd";
 import Highlighter from "react-highlight-words";
 import { SearchOutlined } from "@ant-design/icons";
 
-import { customersData } from "../../json";
-
-function CustomerTable() {
+function CustomerTable(props) {
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
+
+  const { customers, total, onPaginationChange, onShowSizeChange } = props;
 
   const searchInput = useRef(null);
 
@@ -107,6 +107,14 @@ function CustomerTable() {
       key: "name",
       width: "30%",
       ...getColumnSearchProps("name"),
+      sorter: (a, b) => a.name.localeCompare(b.name),
+      sortDirections: ["descend", "ascend"],
+    },
+    {
+      title: "Địa chỉ facebook",
+      dataIndex: "fbURL",
+      key: "fbURL",
+      ...getColumnSearchProps("fbURL"),
     },
     {
       title: "Số điện thoại",
@@ -120,16 +128,22 @@ function CustomerTable() {
       dataIndex: "address",
       key: "address",
       ...getColumnSearchProps("address"),
-      sorter: (a, b) => a.address.length - b.address.length,
-      sortDirections: ["descend", "ascend"],
     },
   ];
 
   return (
     <Table
       columns={columns}
-      dataSource={customersData}
-      pagination={{ position: ["none", "bottomCenter"] }}
+      dataSource={customers}
+      pagination={{
+        position: ["topCenter", "none"],
+        pageSizeOptions: ["10", "20", "50"],
+        showSizeChanger: true,
+        total: total,
+        showTotal: (total) => `Đã có ${total} khách hàng`,
+        onChange: (page, pageSize) => onPaginationChange(page, pageSize),
+        onShowSizeChange: (page) => onShowSizeChange(page),
+      }}
     />
   );
 }
