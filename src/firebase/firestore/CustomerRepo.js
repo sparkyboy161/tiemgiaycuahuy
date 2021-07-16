@@ -4,13 +4,11 @@ import { db } from "..";
 const customerRef = db.collection("customer");
 
 async function create(customer) {
-    const snapshotByPhoneNumber = await customerRef.where("name", "==", customer.phoneNumber).get();
-    console.log('test: ', snapshotByPhoneNumber.docs);
-
+    const snapshotByPhoneNumber = await customerRef.where("phoneNumber", "==", customer.phoneNumber).get();
     if (!snapshotByPhoneNumber.empty) {
         return {
             status: "error",
-            message: `Số điện thoại ${customer.name} đã tồn tại`,
+            message: `Số điện thoại ${customer.phoneNumber} đã tồn tại`,
         };
     } else {
         const { id } = await Firestore.create('customer', customer)

@@ -44,8 +44,8 @@ function Customer() {
     setAddModalVisible(false);
   };
 
-  const getCustomers = async () => {
-    const res = await CustomerRepo.getCustomerList(1, 10);
+  const getCustomers = async (pageNumber, pageSize) => {
+    const res = await CustomerRepo.getCustomerList(pageNumber, pageSize);
     const key = "getCustomers";
     if (res.status === "error") {
       message.error({ content: res.message, key, duration: 3 });
@@ -65,44 +65,26 @@ function Customer() {
   };
 
   const onPaginationChange = async (page, pageSize) => {
-    console.log("onPaginationChange");
     setPagination({
       ...pagination,
       pageNumber: page,
       pageSize: pageSize,
     });
-    const res = await CustomerRepo.getCustomerList(page, pageSize);
-    const key = "onPaginationChange";
-    if (res.status === "error") {
-      message.error({ content: res.message, key, duration: 3 });
-    } else {
-      console.log("onPaginationChange cus: ", page, pageSize);
-      setCustomers(res.data);
-    }
+    getCustomers(page, pageSize);
   };
 
   const onShowSizeChange = async (page) => {
-    console.log("onShowSizeChange");
     setPagination({
       ...pagination,
       pageNumber: page,
     });
-    const res = await CustomerRepo.getCustomerList(
-      pagination.pageNumber,
-      pagination.pageSize
-    );
-    const key = "onShowSizeChange";
-    if (res.status === "error") {
-      message.error({ content: res.message, key, duration: 3 });
-    } else {
-      setCustomers(res.data);
-    }
+    getCustomers(page, pagination.pageSize);
   };
 
   useEffect(() => {
-    getCustomers();
+    getCustomers(pagination.pageNumber, pagination.pageSize);
     getTotalCustomers();
-  }, []);
+  }, [loading, pagination.pageNumber, pagination.pageSize]);
 
   return (
     <Layout className="content">

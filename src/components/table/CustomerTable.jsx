@@ -117,17 +117,17 @@ function CustomerTable(props) {
       ...getColumnSearchProps("fbURL"),
     },
     {
+      title: "Địa chỉ",
+      dataIndex: "address",
+      key: "address",
+      ...getColumnSearchProps("address"),
+    },
+    {
       title: "Số điện thoại",
       dataIndex: "phoneNumber",
       key: "phoneNumber",
       width: "20%",
       ...getColumnSearchProps("phoneNumber"),
-    },
-    {
-      title: "Địa chỉ",
-      dataIndex: "address",
-      key: "address",
-      ...getColumnSearchProps("address"),
     },
   ];
 
