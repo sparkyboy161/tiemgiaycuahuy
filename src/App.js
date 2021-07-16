@@ -1,25 +1,38 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react'
 
-function App() {
+import { Layout, Breadcrumb } from 'antd';
+
+import Sider from './components/sider/Sider';
+import Content from './components/content/Content';
+import Header from './components/header/Header';
+import Footer from './components/footer/Footer';
+
+import {
+  BrowserRouter as Router,
+} from "react-router-dom";
+
+import './App.css'
+
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <Layout className='app'>
+      <Router>
+        <Header />
+        <Layout>
+          <Sider />
+          <Layout style={{ padding: '0 24px 24px' }}>
+            <Breadcrumb style={{ margin: '16px 0' }}>
+              <Breadcrumb.Item>Home</Breadcrumb.Item>
+              <Breadcrumb.Item>List</Breadcrumb.Item>
+              <Breadcrumb.Item>App</Breadcrumb.Item>
+            </Breadcrumb>
+            <Content />
+            <Footer />
+          </Layout>
+        </Layout>
+      </Router>
+    </Layout >
+  )
 }
 
-export default App;
+export default App
