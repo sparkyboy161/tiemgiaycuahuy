@@ -6,7 +6,9 @@ async function create(collectionName, data) {
         const id = Date.now().toString();
         const createdAt = firebase.firestore.FieldValue.serverTimestamp();
         const payload = { ...data, id, createdAt }
+
         await db.collection(collectionName).doc(id).set(payload)
+
         return {
             data: { ...payload, key: id },
             status: 'success'
@@ -20,15 +22,16 @@ async function create(collectionName, data) {
 
 async function update(collectionName, docId, data) {
     try {
-        const res = await db
+        await db
             .collection(collectionName)
             .doc(docId)
             .update({
                 ...data,
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
             });
+
         return {
-            data: res,
+            data: docId,
             status: 'success'
         };
     } catch (error) {
@@ -41,21 +44,45 @@ async function update(collectionName, docId, data) {
 async function remove(collectionName, docId) {
     try {
         const res = await db.collection(collectionName).doc(docId).delete();
+
         return {
             data: res,
             status: 'success'
         };
     } catch (error) {
-        console.log('err: ', error);
         return {
             status: 'error'
         }
     }
 }
 
-async function getData(collectionName, field, pageNumber, pageSize) {
+async function getOneById(collectionName, docId) {
+    try {
+        const query = await db.collection(collectionName).where('id', '==', docId).get();
+
+        if (!query.empty) {
+            const snapshot = query.docs[0];
+            const data = snapshot.data();
+            return {
+                data,
+                status: 'success'
+            };
+        }
+        return {
+            status: 'success',
+            data: []
+        }
+    } catch (error) {
+        return {
+            status: 'error'
+        }
+    }
+}
+
+async function getAll(collectionName, field, pageNumber, pageSize) {
     try {
         let res;
+
         if (pageNumber === 1) {
             res = db.collection(collectionName).orderBy(field).limit(pageSize);
         }
@@ -71,8 +98,10 @@ async function getData(collectionName, field, pageNumber, pageSize) {
                 .startAfter(last.data()[field])
                 .limit(pageSize);
         }
+
         const snapshot = await res.get();
         const data = [];
+
         if (!snapshot.empty) {
             snapshot.forEach((snap) => {
                 const key = snap.data().id;
@@ -90,10 +119,11 @@ async function getData(collectionName, field, pageNumber, pageSize) {
     }
 }
 
-async function getTotalItems(collectionName) {
+async function getTotal(collectionName) {
     try {
         const res = db.collection(collectionName);
         const snapshot = await res.get();
+
         if (snapshot.empty) {
             return 0;
         }
@@ -108,4 +138,4 @@ async function getTotalItems(collectionName) {
     }
 }
 
-export const Firestore = { create, update, getData, getTotalItems, remove };
+export const Firestore = { create, update, getAll, getTotal, remove, getOneById };
