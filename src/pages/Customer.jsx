@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 import "./customer.css";
 
@@ -25,8 +25,9 @@ function Customer() {
     setAddModalVisible(true);
   };
 
-  const handleOk = async (values) => {
+  const handleCreateCustomer = async (values) => {
     const key = "createCustomer";
+
     message.loading({ content: "Đợi tí nào...", key });
     setLoading(true);
     console.log("values: ", values);
@@ -36,6 +37,7 @@ function Customer() {
       message.error({ content: res.message, key, duration: 3 });
     } else {
       message.success({ content: res.message, key, duration: 3 });
+      setCustomers([...customers, { ...res.data }]);
       setAddModalVisible(false);
     }
   };
@@ -44,19 +46,21 @@ function Customer() {
     setAddModalVisible(false);
   };
 
-  const getCustomers = async (pageNumber, pageSize) => {
+  const getCustomers = useCallback(async (pageNumber, pageSize) => {
     const res = await CustomerRepo.getCustomerList(pageNumber, pageSize);
     const key = "getCustomers";
+
     if (res.status === "error") {
       message.error({ content: res.message, key, duration: 3 });
     } else {
       setCustomers(res.data);
     }
-  };
+  }, []);
 
   const getTotalCustomers = async () => {
     const res = await CustomerRepo.getTotalCustomers();
     const key = "getTotalCustomer";
+
     if (res.status === "error") {
       message.error({ content: res.message, key, duration: 3 });
     } else {
@@ -81,10 +85,23 @@ function Customer() {
     getCustomers(page, pagination.pageSize);
   };
 
+  const onDeleteCustomer = async (customerID) => {
+    const res = await CustomerRepo.remove(customerID);
+    const key = "onDeleteCustomer";
+
+    if (res.status === "error") {
+      message.error({ content: res.message, key, duration: 3 });
+    } else {
+      setCustomers((customers) =>
+        customers.filter((customer) => customer.id !== customerID)
+      );
+    }
+  };
+
   useEffect(() => {
     getCustomers(pagination.pageNumber, pagination.pageSize);
     getTotalCustomers();
-  }, [loading, pagination.pageNumber, pagination.pageSize]);
+  }, [getCustomers, pagination.pageNumber, pagination.pageSize]);
 
   return (
     <Layout className="content">
@@ -101,16 +118,18 @@ function Customer() {
 
       <AddCustomerModal
         visible={addModalVisible}
-        handleOk={handleOk}
+        handleOk={handleCreateCustomer}
         handleCancel={handleCancel}
         loading={loading}
       />
       <CustomerTable
+        loading={loading}
         pagination={pagination}
         customers={customers}
         onPaginationChange={onPaginationChange}
         total={total}
         onShowSizeChange={onShowSizeChange}
+        onDeleteCustomer={onDeleteCustomer}
       />
     </Layout>
   );

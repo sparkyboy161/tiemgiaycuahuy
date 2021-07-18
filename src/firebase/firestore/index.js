@@ -3,11 +3,14 @@ import firebase from 'firebase';
 
 async function create(collectionName, data) {
     try {
-        const res = await db.collection(collectionName).add({
-            ...data,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        });
-        return res;
+        const id = Date.now().toString();
+        const createdAt = firebase.firestore.FieldValue.serverTimestamp();
+        const payload = { ...data, id, createdAt }
+        await db.collection(collectionName).doc(id).set(payload)
+        return {
+            data: { ...payload, key: id },
+            status: 'success'
+        };
     } catch (error) {
         return {
             status: 'error'
@@ -24,7 +27,10 @@ async function update(collectionName, docId, data) {
                 ...data,
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
             });
-        return res;
+        return {
+            data: res,
+            status: 'success'
+        };
     } catch (error) {
         return {
             status: 'error'
@@ -32,41 +38,74 @@ async function update(collectionName, docId, data) {
     }
 }
 
-async function getData(collectionName, field, pageNumber, pageSize) {
-    let res;
-    if (pageNumber === 1) {
-        res = db.collection(collectionName).orderBy(field).limit(pageSize);
+async function remove(collectionName, docId) {
+    try {
+        const res = await db.collection(collectionName).doc(docId).delete();
+        return {
+            data: res,
+            status: 'success'
+        };
+    } catch (error) {
+        console.log('err: ', error);
+        return {
+            status: 'error'
+        }
     }
-    else {
-        console.log(1111)
-        const first = db.collection(collectionName)
-            .orderBy(field)
-            .limit((pageNumber - 1) * pageSize);
-        const snapshotByFirst = await first.get();
-        const last = snapshotByFirst.docs[snapshotByFirst.docs.length - 1];
+}
 
-        res = db.collection(collectionName)
-            .orderBy(field)
-            .startAfter(last.data()[field])
-            .limit(pageSize);
+async function getData(collectionName, field, pageNumber, pageSize) {
+    try {
+        let res;
+        if (pageNumber === 1) {
+            res = db.collection(collectionName).orderBy(field).limit(pageSize);
+        }
+        else {
+            const first = db.collection(collectionName)
+                .orderBy(field)
+                .limit((pageNumber - 1) * pageSize);
+            const snapshotByFirst = await first.get();
+            const last = snapshotByFirst.docs[snapshotByFirst.docs.length - 1];
+
+            res = db.collection(collectionName)
+                .orderBy(field)
+                .startAfter(last.data()[field])
+                .limit(pageSize);
+        }
+        const snapshot = await res.get();
+        const data = [];
+        if (!snapshot.empty) {
+            snapshot.forEach((snap) => {
+                const key = snap.data().id;
+                data.push({ ...snap.data(), key });
+            });
+        }
+        return {
+            data,
+            status: 'success'
+        };
+    } catch (err) {
+        return {
+            status: 'error'
+        }
     }
-    const snapshot = await res.get();
-    const data = [];
-    if (!snapshot.empty) {
-        snapshot.forEach((snap) => {
-            data.push(snap.data());
-        });
-    }
-    return data;
 }
 
 async function getTotalItems(collectionName) {
-    const res = db.collection(collectionName);
-    const snapshot = await res.get();
-    if (snapshot.empty) {
-        return 0;
+    try {
+        const res = db.collection(collectionName);
+        const snapshot = await res.get();
+        if (snapshot.empty) {
+            return 0;
+        }
+        return {
+            total: snapshot.docs.length,
+            status: 'success'
+        };
+    } catch (err) {
+        return {
+            status: 'error'
+        }
     }
-    return snapshot.docs.length;
 }
 
-export const Firestore = { create, update, getData, getTotalItems };
+export const Firestore = { create, update, getData, getTotalItems, remove };

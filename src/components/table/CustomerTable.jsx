@@ -2,13 +2,20 @@ import React, { useState, useRef } from "react";
 
 import { Table, Input, Button, Space } from "antd";
 import Highlighter from "react-highlight-words";
-import { SearchOutlined } from "@ant-design/icons";
+import { SearchOutlined, DeleteOutlined } from "@ant-design/icons";
 
 function CustomerTable(props) {
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
 
-  const { customers, total, onPaginationChange, onShowSizeChange } = props;
+  const {
+    customers,
+    total,
+    onPaginationChange,
+    onShowSizeChange,
+    onDeleteCustomer,
+    loading,
+  } = props;
 
   const searchInput = useRef(null);
 
@@ -129,14 +136,22 @@ function CustomerTable(props) {
       width: "20%",
       ...getColumnSearchProps("phoneNumber"),
     },
+    {
+      title: "Action",
+      dataIndex: "id",
+      key: "id",
+      render: (key) => <DeleteOutlined onClick={() => onDeleteCustomer(key)} />,
+    },
   ];
 
+  console.log(customers);
   return (
     <Table
       columns={columns}
       dataSource={customers}
+      loading={loading}
       pagination={{
-        position: ["topCenter", "none"],
+        position: ["none", "bottomCenter"],
         pageSizeOptions: ["10", "20", "50"],
         showSizeChanger: true,
         total: total,
