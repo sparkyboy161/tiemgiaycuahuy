@@ -1,14 +1,14 @@
 import React, { useState, useRef } from "react";
 
-import "./addCustomerModal.css";
+import "./editCustomerModal.css";
 
 import { Form, Modal, Button, Input } from "antd";
 import Draggable from "react-draggable";
 
 import { formItemLayout } from "../../json";
 
-function AddCustomerModal(props) {
-  const { visible, onCreate, handleCancel, loading } = props;
+function EditCustomerModal(props) {
+  const { visible, onEdit, handleCancel, loading, customer } = props;
 
   const [form] = Form.useForm();
 
@@ -55,10 +55,10 @@ function AddCustomerModal(props) {
           }}
           // end
         >
-          Thêm khách hàng
+          Chỉnh sửa thông tin khách hàng
         </div>
       }
-      onOk={() => onCreate(form.getFieldsValue())}
+      onOk={() => onEdit(form.getFieldsValue())}
       onCancel={handleCancel}
       footer={[
         <Button key="back" onClick={handleCancel}>
@@ -68,9 +68,9 @@ function AddCustomerModal(props) {
           key="submit"
           type="primary"
           loading={loading}
-          onClick={() => onCreate(form.getFieldsValue())}
+          onClick={() => onEdit(form.getFieldsValue())}
         >
-          Submit
+          Xác nhận
         </Button>,
       ]}
       modalRender={(modal) => (
@@ -84,9 +84,10 @@ function AddCustomerModal(props) {
       )}
     >
       <Form
+        initialValues={customer}
         {...formItemLayout}
         form={form}
-        name="addCustomer"
+        name="editCustomer"
         scrollToFirstError
       >
         <Form.Item
@@ -145,4 +146,4 @@ function AddCustomerModal(props) {
   );
 }
 
-export default AddCustomerModal;
+export default EditCustomerModal;

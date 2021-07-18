@@ -2,7 +2,9 @@ import React, { useState, useRef } from "react";
 
 import { Table, Input, Button, Space } from "antd";
 import Highlighter from "react-highlight-words";
-import { SearchOutlined, DeleteOutlined } from "@ant-design/icons";
+import { SearchOutlined } from "@ant-design/icons";
+
+import ActionButton from "./ActionButton";
 
 function CustomerTable(props) {
   const [searchText, setSearchText] = useState("");
@@ -13,8 +15,10 @@ function CustomerTable(props) {
     total,
     onPaginationChange,
     onShowSizeChange,
-    onDeleteCustomer,
+    onDelete,
+    getCustomer,
     loading,
+    showModal,
   } = props;
 
   const searchInput = useRef(null);
@@ -137,14 +141,19 @@ function CustomerTable(props) {
       ...getColumnSearchProps("phoneNumber"),
     },
     {
-      title: "Action",
+      title: "Hành động",
       dataIndex: "id",
       key: "id",
-      render: (key) => <DeleteOutlined onClick={() => onDeleteCustomer(key)} />,
+      render: (key) => (
+        <ActionButton
+          onDelete={() => onDelete(key)}
+          getCustomer={() => getCustomer(key)}
+          showModal={showModal}
+        />
+      ),
     },
   ];
 
-  console.log(customers);
   return (
     <Table
       columns={columns}
