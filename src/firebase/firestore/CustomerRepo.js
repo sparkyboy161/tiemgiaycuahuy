@@ -11,7 +11,6 @@ async function create(customer) {
         return Utils.createMessage("error", `Số điện thoại ${customer.phoneNumber} đã tồn tại`);
     } else {
         const res = await Firestore.create('customers', customer);
-        console.log('res: ', res);
 
         if (res.status === 'error') {
             return Utils.createMessage("error", "Tạo khách hàng thất bại")
@@ -23,7 +22,6 @@ async function create(customer) {
 
 async function update(customerID, data) {
     const res = await Firestore.update('customers', customerID, data);
-    console.log('res update: ', res);
 
     if (res.status === 'error') {
         return Utils.createMessage("error", "Chỉnh sửa thông tin khách hàng thất bại")

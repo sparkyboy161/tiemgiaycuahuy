@@ -1,10 +1,12 @@
 import React, { useState, useRef } from "react";
 
-import { Table, Input, Button, Space } from "antd";
+import { Table, Input, Button, Space, Popconfirm } from "antd";
 import Highlighter from "react-highlight-words";
-import { SearchOutlined } from "@ant-design/icons";
-
-import ActionButton from "./ActionButton";
+import {
+  SearchOutlined,
+  DeleteOutlined,
+  EditOutlined,
+} from "@ant-design/icons";
 
 function CustomerTable(props) {
   const [searchText, setSearchText] = useState("");
@@ -16,9 +18,8 @@ function CustomerTable(props) {
     onPaginationChange,
     onShowSizeChange,
     onDelete,
-    getCustomer,
+    onEditClick,
     loading,
-    showModal,
   } = props;
 
   const searchInput = useRef(null);
@@ -142,15 +143,20 @@ function CustomerTable(props) {
     },
     {
       title: "Hành động",
-      dataIndex: "id",
-      key: "id",
-      render: (key) => (
-        <ActionButton
-          onDelete={() => onDelete(key)}
-          getCustomer={() => getCustomer(key)}
-          showModal={showModal}
-        />
-      ),
+      dataIndex: "operation",
+      render: (_, record) =>
+        customers.length >= 1 ? (
+          <Space size="small">
+            <EditOutlined onClick={() => onEditClick(record.key)} />
+
+            <Popconfirm
+              title="Bạn có chắc chắn muốn xóa khách hàng này？"
+              onConfirm={() => onDelete(record.key)}
+            >
+              <DeleteOutlined />
+            </Popconfirm>
+          </Space>
+        ) : null,
     },
   ];
 
