@@ -1,13 +1,13 @@
 import React, { useState, useRef } from "react";
 
-import "./editCustomerModal.css";
+import "./editModal.css";
 
-import { Form, Modal, Button, Input } from "antd";
+import EditForm from "../../form/customer/EditForm";
+
+import { Modal, Button, Form } from "antd";
 import Draggable from "react-draggable";
 
-import { formItemLayout } from "../../json";
-
-function EditCustomerModal(props) {
+function EditModal(props) {
   const { visible, onEdit, handleCancel, loading, customer } = props;
 
   const [form] = Form.useForm();
@@ -83,67 +83,9 @@ function EditCustomerModal(props) {
         </Draggable>
       )}
     >
-      <Form
-        initialValues={customer}
-        {...formItemLayout}
-        form={form}
-        name="editCustomer"
-        scrollToFirstError
-      >
-        <Form.Item
-          name="name"
-          label="Tên khách hàng"
-          rules={[
-            {
-              required: true,
-              message: "Không được bỏ trống tên khách hàng!",
-            },
-          ]}
-        >
-          <Input />
-        </Form.Item>
-
-        <Form.Item
-          name="fbURL"
-          label="Địa chỉ facebook"
-          rules={[
-            {
-              required: true,
-              message: "Không được bỏ trống địa chỉ facebook!",
-            },
-          ]}
-        >
-          <Input />
-        </Form.Item>
-
-        <Form.Item
-          name="address"
-          label="Địa chỉ"
-          rules={[
-            {
-              required: true,
-              message: "Không được bỏ trống địa chỉ!",
-            },
-          ]}
-        >
-          <Input />
-        </Form.Item>
-
-        <Form.Item
-          name="phoneNumber"
-          label="Số điện thoại"
-          rules={[
-            {
-              required: true,
-              message: "Không được bỏ trống số điện thoại!",
-            },
-          ]}
-        >
-          <Input />
-        </Form.Item>
-      </Form>
+      <EditForm customer={customer} form={form} />
     </Modal>
   );
 }
 
-export default EditCustomerModal;
+export default EditModal;

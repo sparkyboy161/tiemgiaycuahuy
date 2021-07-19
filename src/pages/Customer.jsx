@@ -5,10 +5,10 @@ import "./customer.css";
 import { Layout, Row, Typography, Button, Col, message } from "antd";
 
 import CustomerTable from "../components/table/CustomerTable";
-import AddCustomerModal from "../components/modal/AddCustomerModal";
+import AddModal from "../components/modal/customer/AddModal";
+import EditModal from "../components/modal/customer/EditModal";
 
 import { CustomerRepo } from "../firebase/firestore/CustomerRepo";
-import EditCustomerModal from "../components/modal/EditCustomerModal";
 
 const { Title } = Typography;
 
@@ -24,7 +24,7 @@ function Customer() {
   const [customer, setCustomer] = useState([]);
   const [customers, setCustomers] = useState([]);
 
-  const showModal = (name) => {
+  const onShow = (name) => {
     if (name === "add") {
       setAddModalVisible(true);
     } else {
@@ -32,7 +32,7 @@ function Customer() {
     }
   };
 
-  const cancelModal = (name) => {
+  const onCancel = (name) => {
     if (name === "add") {
       setAddModalVisible(false);
     } else {
@@ -45,8 +45,9 @@ function Customer() {
 
     message.loading({ content: "Đợi tí nào...", key });
     setLoading(true);
-    console.log("values: ", values);
+
     const res = await CustomerRepo.create(values);
+
     setLoading(false);
     if (res.status === "error") {
       message.error({ content: res.message, key, duration: 3 });
@@ -96,6 +97,11 @@ function Customer() {
       );
       setEditModalVisible(false);
     }
+  };
+
+  const onEditClick = (key) => {
+    onShow("edit");
+    getCustomer(key);
   };
 
   const getCustomer = useCallback(async (id) => {
@@ -160,29 +166,29 @@ function Customer() {
           <Title>Khách hàng</Title>
         </Col>
         <Col className="btn__container">
-          <Button type="primary" onClick={() => showModal("add")}>
+          <Button type="primary" onClick={() => onShow("add")}>
             Thêm khách hàng
           </Button>
         </Col>
       </Row>
 
-      <AddCustomerModal
+      <AddModal
         visible={addModalVisible}
         onCreate={onCreate}
-        handleCancel={() => cancelModal("add")}
+        handleCancel={() => onCancel("add")}
         loading={loading}
       />
 
-      <EditCustomerModal
+      <EditModal
         visible={editModalVisible}
         onEdit={onEdit}
-        handleCancel={() => cancelModal("edit")}
+        handleCancel={() => onCancel("edit")}
         loading={loading}
         customer={customer}
       />
 
       <CustomerTable
-        showModal={showModal}
+        onShow={onShow}
         loading={loading}
         pagination={pagination}
         customers={customers}
@@ -190,7 +196,8 @@ function Customer() {
         total={total}
         onShowSizeChange={onShowSizeChange}
         onDelete={onDelete}
-        getCustomer={getCustomer}
+        onEditClick={onEditClick}
+        onCancel={onCancel}
       />
     </Layout>
   );
